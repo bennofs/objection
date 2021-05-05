@@ -75,6 +75,7 @@ class AndroidGadget(BasePlatformGadget):
             :return:
         """
 
+        assert self.architecture != None, "architecture must be set!"
         return self.architecture
 
     def get_frida_library_path(self, packed: bool = False) -> str:
@@ -139,7 +140,7 @@ class AndroidGadget(BasePlatformGadget):
 
         # url should contain 'frida-gadget-{version}-android-{arch}.so.xz
         url_start = 'frida-gadget-'
-        url_end = 'android-' + self.architectures[self.architecture] + '.so.xz'
+        url_end = 'android-' + self.architectures[self.get_architecture()] + '.so.xz'
 
         for asset in self.github.get_assets():
             if asset['name'].startswith(url_start) and asset['name'].endswith(url_end):
@@ -275,7 +276,7 @@ class AndroidPatcher(BasePlatformPatcher):
 
         return self
 
-    def _get_android_manifest(self) -> ElementTree:
+    def _get_android_manifest(self) -> ElementTree.ElementTree:
         """
             Get the AndroidManifest as a parsed ElementTree
 
@@ -365,6 +366,7 @@ class AndroidPatcher(BasePlatformPatcher):
                 category_name = category.get('{http://schemas.android.com/apk/res/android}name')
 
                 if category_name == 'android.intent.category.LAUNCHER':
+                    assert current_activity != None
                     return current_activity
 
         # getting here means we were unable to determine what the launchable
